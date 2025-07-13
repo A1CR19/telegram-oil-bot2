@@ -1,6 +1,8 @@
 import asyncio
 import logging
-import nest_asyncio
+import nest_asyncio  # ✅ 加上这行
+nest_asyncio.apply()  # ✅ 再加这行
+
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import (
     ApplicationBuilder,
@@ -9,6 +11,7 @@ from telegram.ext import (
     ContextTypes,
     filters,
 )
+
 
 # 启用日志输出
 logging.basicConfig(
