@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import nest_asyncio
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import (
     ApplicationBuilder,
@@ -19,11 +20,11 @@ logging.basicConfig(
 BOT_TOKEN = "8053714790:AAGjDeDLUtueXDkeJiYeiY9kvC5nzhjuLzY"
 
 # ✅ 替换为你自己的图片 file_id
-WELCOME_IMG_ID = "AgACAgUAAxkBAAMFaHNZiJzn1tAn3rcze61gvLf2YBUAAu_MMRsDP5lXvUaRV6ukCLEBAAMCAAN5AAM2BA"
-CARD_100_IMG_ID = WELCOME_IMG_ID  # 实际你应该有新的 file_id
-CARD_300_IMG_ID = WELCOME_IMG_ID
-ORDER_IMG_ID = WELCOME_IMG_ID
-CUSTOMER_IMG_ID = WELCOME_IMG_ID
+WELCOME_IMG_ID = "AgACAgUAAxkBAAMJaHPV1eyQ8z_fVK7Yt3k85VxNgTEAAizGMRsZdaFXfuNLuN-INr8BAAMCAAN5AAM2BA"
+CARD_100_IMG_ID = "AgACAgUAAxkBAAMLaHPWCFoVFapOwi94fJRCz4B6ycQAAi7GMRsZdaFXEVNSbNcRChIBAAMCAAN4AAM2BA"
+CARD_300_IMG_ID = CARD_100_IMG_ID
+ORDER_IMG_ID = "AgACAgUAAxkBAAMKaHPV8I7h3xAl2HiT5-KytQJXhwADLcYxGxl1oVcJZsMDFqMUAQEAAwIAA3gAAzYE"
+CUSTOMER_IMG_ID = "AgACAgUAAxkBAAMKaHPV8I7h3xAl2HiT5-KytQJXhwADLcYxGxl1oVcJZsMDFqMUAQEAAwIAA3gAAzYE"
 
 # /start 欢迎命令
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -33,7 +34,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ["📦 查看订单", "💬 联系客服"]
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-    
+
     caption = (
         f"👏 欢迎 {name} 加入【🅜 石化卡商自助下单系统】\n\n"
         "⚠️ 请确保您的 Telegram 是从 [telegram.org](https://telegram.org) 官网下载\n"
@@ -42,7 +43,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "🧩 校验码：前5位 `THTXf` / 后5位 `EHYCQ`\n\n"
         "💬 请点击下方菜单按钮继续操作 👇"
     )
-    
+
     await update.message.reply_photo(
         photo=WELCOME_IMG_ID,
         caption=caption,
@@ -81,14 +82,25 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("请点击下方菜单按钮选择服务 👇")
 
-# 启动主程序
+# 主函数
 async def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    
+
     print("🤖 Bot 正在运行...")
     await app.run_polling()
 
+# 启动入口（兼容 IDLE / Jupyter / 特殊控制台）
 if __name__ == '__main__':
-    asyncio.run(main())
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+    if loop.is_running():
+        nest_asyncio.apply()
+        loop.create_task(main())
+    else:
+        loop.run_until_complete(main())
