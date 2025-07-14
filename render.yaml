@@ -1,0 +1,11 @@
+services:
+  - type: worker
+    name: telegram-oil-bot
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python bot.py"
+    pythonVersion: 3.10.13   # 👈 关键就在这
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
